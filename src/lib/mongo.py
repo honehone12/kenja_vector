@@ -14,8 +14,6 @@ def connect():
     __client = AsyncMongoClient(uri)
 
 def db(key: str) -> Database:
-    global __client
-
     if __client is None:
         raise ValueError('client is not initialized')
 

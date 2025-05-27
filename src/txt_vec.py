@@ -5,7 +5,7 @@ from pymongo.database import Database
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 import lib.jsonio as jsonio
-from lib.logger import log, loginit
+from lib.logger import log, init_logger
 from lib.documents import Doc, Img, Done
 from lib.logger import log
 import lib.mongo as mongo
@@ -27,19 +27,19 @@ async def text_vec():
         elif l == 1:
             continue
         
-        img_found = [i for i in img_list if i.item_id == doc.item_id]
-        l = len(img_found)
-        if l > 1:
-            raise AssertionError(f'{l} same item id found in img list')
-        elif l == 0:
-            res = await colle.delete_one({_id: doc._id})
-            log().warn(f'deleted {res.deleted_count} item without img')
+        # img_found = [i for i in img_list if i.item_id == doc.item_id]
+        # l = len(img_found)
+        # if l > 1:
+        #     raise AssertionError(f'{l} same item id found in img list')
+        # elif l == 0:
+        #     res = await colle.delete_one({_id: doc._id})
+        #     log().warn(f'deleted {res.deleted_count} item without img')
 
-        desc = doc.description
+        desc = doc['description']
         log().info(desc)
 
 if __name__ == '__main__':
-    loginit(__name__)
+    init_logger(__name__)
     load_dotenv()
     
     try:
