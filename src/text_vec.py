@@ -1,11 +1,10 @@
 import asyncio
 from dotenv import load_dotenv
-from pymongo import AsyncMongoClient
 from lib.jsonio import parse_from_env
 from lib.logger import log, init_logger
 import lib.mongo as mongo
 
-async def img_vec():
+async def text_vec():
     mongo.connect()
     db = mongo.db_from_env('DB')
     source_colle = mongo.colle_from_env(db, 'SOURCE_CL')
@@ -21,6 +20,6 @@ if __name__ == '__main__':
     load_dotenv()
     
     try:
-        asyncio.run(img_vec())
+        asyncio.run(text_vec())
     except Exception as e:
         log().error(e)

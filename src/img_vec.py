@@ -1,6 +1,5 @@
 import asyncio
 from dotenv import load_dotenv
-from pymongo import AsyncMongoClient
 from lib.jsonio import parse_from_env
 from lib.logger import log, init_logger
 import lib.mongo as mongo
