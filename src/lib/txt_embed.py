@@ -15,7 +15,7 @@ def init_model():
 
     __model = SentenceTransformer(model_name, trust_remote_code=True)
 
-def vector(sentence: str) -> Tensor:
+def txt_vector(sentence: str) -> Tensor:
     if __model is None:
         raise ValueError('model is not initialized')
 

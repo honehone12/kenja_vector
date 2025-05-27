@@ -4,16 +4,16 @@ from dotenv import load_dotenv
 from pymongo.database import Database
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
+from bson.binary import BinaryVectorDtype
 import lib.jsonio as jsonio
 from lib.logger import log, init_logger
 from lib.documents import Doc, Img, Done
 from lib.logger import log
 import lib.mongo as mongo
 from lib.mongo import compress_bin
-from lib.txt_embed import init_model, vector
-from bson.binary import BinaryVectorDtype
+from lib.txt_embed import init_model, txt_vector
 
-async def text_vec():
+async def txt_vec():
     db = mongo.db('DATABASE')
     colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
 
@@ -21,6 +21,7 @@ async def text_vec():
     done_list = [Done(**done) for done in jsonio.parse('DONE_LIST')]
 
     stream: Cursor[Doc] = colle.find({})
+    it = 0
     async for doc in stream:
         done_found = [d for d in done_list if d.item_id == doc.item_id]
         l = len(done_found)
@@ -37,8 +38,11 @@ async def text_vec():
         #     res = await colle.delete_one({_id: doc._id})
         #     log().warn(f'deleted {res.deleted_count} item without img')
 
+        it += 1
+        log().info(f'iterating {it}')
+
         desc = doc['description']
-        v = vector(desc)
+        v = txt_vector(desc)
         compressed = compress_bin(v, BinaryVectorDtype.FLOAT32)
         
 
@@ -48,6 +52,6 @@ if __name__ == '__main__':
         load_dotenv()
         mongo.connect()
         init_model()
-        asyncio.run(text_vec())
+        asyncio.run(txt_vec())
     except Exception as e:
         log().error(e)
