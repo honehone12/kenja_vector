@@ -1,7 +1,7 @@
 import os
 import json
 
-def parse_from_env(key: str):
+def parse(key: str):
     file_name = os.getenv(key)
     if file_name is None:
         raise ValueError(f'env for {key} is not set')

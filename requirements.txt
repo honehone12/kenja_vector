@@ -15,6 +15,7 @@ nvidia-nvtx-cu12==12.6.77
 
 pymongo==4.13.0
 python-dotenv==1.1.0
+pydantic==2.11.5
 
 sentence-transformers==4.1.0
 torch==2.7.0

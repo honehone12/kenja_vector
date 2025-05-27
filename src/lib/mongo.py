@@ -11,7 +11,7 @@ def connect() -> AsyncMongoClient:
     __client = AsyncMongoClient(uri)
     return __client
 
-def db_from_env(key: str):
+def db(key: str):
     if __client is None:
         raise ValueError('client is not initialized')
 
@@ -21,7 +21,7 @@ def db_from_env(key: str):
     
     return __client[db_name] 
 
-def colle_from_env(db, key: str):
+def colle(db, key: str):
     colle_name = os.getenv(key)
     if colle_name is None:
         raise ValueError(f'env for {key} is not set')

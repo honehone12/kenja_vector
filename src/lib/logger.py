@@ -7,7 +7,7 @@ def log() -> logging.Logger:
         raise ValueError("logger is not initialized")
     return __log
 
-def init_logger(name: str) -> logging.Logger:
+def loginit(name: str) -> logging.Logger:
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s [%(levelname)s] %(message)s',
