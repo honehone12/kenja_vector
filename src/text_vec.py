@@ -1,19 +1,26 @@
 import asyncio
 from dotenv import load_dotenv
-
-from lib.logger import init_logger
+from pymongo import AsyncMongoClient
+from lib.jsonio import parse_from_env
+from lib.logger import log, init_logger
 import lib.mongo as mongo
 
-async def main():
-    log = init_logger(__name__)
-    load_dotenv()
+async def img_vec():
+    mongo.connect()
+    db = mongo.db_from_env('DB')
+    source_colle = mongo.colle_from_env(db, 'SOURCE_CL')
+    dist_colle = mongo.colle_from_env(db, 'DIST_CL')
 
-    try:
-        log.info('hello')
-        mongo_client = mongo.connect()
+    img_list = parse_from_env('IMG_LIST')
+    done_list = parse_from_env('DONE_LIST')    
 
-    except Exception as e:
-        log.error(e)
+
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    init_logger(__name__)
+    load_dotenv()
+    
+    try:
+        asyncio.run(img_vec())
+    except Exception as e:
+        log().error(e)
