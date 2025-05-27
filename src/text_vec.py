@@ -1,20 +1,28 @@
+import os
 import asyncio
 from dotenv import load_dotenv
+from pymongo.database import Database
+from pymongo.collection import Collection
+from pymongo.cursor import Cursor
 import lib.jsonio as jsonio
 from lib.logger import log, loginit
+from lib.documents import Doc, Img, Done
+from lib.logger import log
 import lib.mongo as mongo
-from lib.documents import Img, Done
 
 async def text_vec():
     mongo.connect()
-    db = mongo.db('DB')
-    source_colle = mongo.colle(db, 'SOURCE_CL')
-    dist_colle = mongo.colle(db, 'DIST_CL')
+    db = mongo.db('DATABASE')
+    colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
 
-    img_dict = jsonio.parse('IMG_LIST')
-    img_list = [Img(**img) for img in img_dict]
-    done_dict = jsonio.parse('DONE_LIST')
-    done_list = [Done(**done) for done in done_dict]
+    img_raw = jsonio.parse('IMG_LIST')
+    img_list = [Img(**img) for img in img_raw]
+    done_raw = jsonio.parse('DONE_LIST')
+    done_list = [Done(**done) for done in done_raw]
+
+    stream: Cursor[Doc] = colle.find({})
+    async for document in stream:
+        log().info(document)
 
 if __name__ == '__main__':
     loginit(__name__)

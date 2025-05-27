@@ -1,5 +1,6 @@
 from typing import TypedDict
 from pydantic import BaseModel
+from bson import ObjectId
 
 ITEM_T_ANIME = 1
 ITEM_T_CHARACTER = 2
@@ -22,5 +23,6 @@ class Img(BaseModel):
     path: str
 
 class Doc(TypedDict):
+    _id: ObjectId
     item_id: ItemId
     description: str
