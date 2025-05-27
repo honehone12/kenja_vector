@@ -6,7 +6,7 @@ __PROMPT = 'passage'
 
 __model = None
 
-def ini_model():
+def init_model():
     global __model
 
     model_name = os.getenv('TXT_EMBED_MODEL')
@@ -19,4 +19,8 @@ def vector(sentence: str) -> Tensor:
     if __model is None:
         raise ValueError('model is not initialized')
 
-    return __model.encode(sentence, prompt_name=__PROMPT)
+    return __model.encode(
+        sentence, 
+        prompt_name=__PROMPT,
+        normalize_embeddings=True
+    )

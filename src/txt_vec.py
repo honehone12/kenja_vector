@@ -9,9 +9,11 @@ from lib.logger import log, init_logger
 from lib.documents import Doc, Img, Done
 from lib.logger import log
 import lib.mongo as mongo
+from lib.mongo import compress_bin
+from lib.txt_embed import init_model, vector
+from bson.binary import BinaryVectorDtype
 
 async def text_vec():
-    mongo.connect()
     db = mongo.db('DATABASE')
     colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
 
@@ -36,13 +38,16 @@ async def text_vec():
         #     log().warn(f'deleted {res.deleted_count} item without img')
 
         desc = doc['description']
-        log().info(desc)
+        v = vector(desc)
+        compressed = compress_bin(v, BinaryVectorDtype.FLOAT32)
+        
 
 if __name__ == '__main__':
-    init_logger(__name__)
-    load_dotenv()
-    
     try:
+        init_logger(__name__)
+        load_dotenv()
+        mongo.connect()
+        init_model()
         asyncio.run(text_vec())
     except Exception as e:
         log().error(e)

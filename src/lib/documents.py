@@ -26,4 +26,3 @@ class Doc(TypedDict):
     _id: ObjectId
     item_id: ItemId
     description: str
-    
