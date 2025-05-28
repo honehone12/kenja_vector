@@ -34,8 +34,8 @@ async def img_vec():
         if l > 1:
             raise AssertionError(f'{l} same item id found in img list')
         elif l == 0:
-            res = await colle.delete_one({_id: doc._id})
-            log().warn(f'deleted {res.deleted_count} item without img')
+            log().warn(f'could not find img for {doc.item_id.item_type}:{doc.item_id.id}')
+            continue
 
         it += 1
         log().info(f'iterating {it}')
