@@ -24,6 +24,7 @@ def txt_vector(sentence: str) -> ndarray:
     raw = __model.encode(
         sentence, 
         prompt_name=__PROMPT,
+        show_progress_bar=False,
         convert_to_numpy=True
     )
     normal = norm(raw)

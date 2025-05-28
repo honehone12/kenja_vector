@@ -30,5 +30,5 @@ def colle(db: Database, key: str) -> Collection:
         raise ValueError(f'env for {key} is not set')
     return db[collection]
 
-def compress_bin(v: ndarray, bin_type: BinaryVectorDtype) -> Binary:
-    return Binary.from_vector(vector=v, dtype=bin_type)
+def compress_bin(v: ndarray) -> Binary:
+    return Binary.from_vector(vector=v, dtype=BinaryVectorDtype.FLOAT32)

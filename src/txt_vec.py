@@ -36,15 +36,15 @@ async def txt_vec(iteration: int):
 
         desc = doc['description']
         v = txt_vector(desc)
-        compressed = compress_bin(v, BinaryVectorDtype.FLOAT32)
+        compressed = compress_bin(v)
 
-        # res = await colle.update_one(
-        #     {'_id': doc['_id']}, 
-        #     {'$set': {'text_vector': compressed}}
-        # )
-        # if res.modified_count != 1:
-        #     log().warn(f'failed to update {doc.item_id.item_type}:{doc.item_id.id}')
-        #     continue
+        res = await colle.update_one(
+            {'_id': doc['_id']}, 
+            {'$set': {'text_vector': compressed}}
+        )
+        if res.modified_count != 1:
+            log().warn(f'failed to update {doc.item_id.item_type}:{doc.item_id.id}')
+            continue
 
         done_list.append(Done(item_id=doc['item_id']))
 
