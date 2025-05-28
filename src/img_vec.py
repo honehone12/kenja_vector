@@ -1,5 +1,6 @@
 import os
 import asyncio
+import urllib
 from dotenv import load_dotenv
 from pymongo.database import Database
 from pymongo.collection import Collection
@@ -12,11 +13,10 @@ from lib.logger import log
 import lib.mongo as mongo
 from lib.mongo import compress_bin
 
-async def img_vec(iteration: int):
+async def img_vec(iteration: int, img_root: str):
     db = mongo.db('DATABASE')
     colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
 
-    img_list = [Img(**img) for img in jsonio.parse('IMG_LIST')]
     done_list = [Done(**done) for done in jsonio.parse('DONE_LIST')]
 
     stream: Cursor[Doc] = colle.find({})
@@ -29,15 +29,17 @@ async def img_vec(iteration: int):
         elif l == 1:
             continue
         
-        img_found = [i for i in img_list if i.item_id == doc.item_id]
-        l = len(img_found)
-        if l > 1:
-            raise AssertionError(f'{l} same item id found in img list')
-        elif l == 0:
-            log().warn(f'could not find img for {doc.item_id.item_type}:{doc.item_id.id}')
+        url = urllib.parse.urlparse(doc['img'])
+        path = url.path
+        path.removesuffix
+        path = img_root + path
+        
+        if not os.path.exists(path):
             continue
 
         it += 1
+        if it > iteration:
+            break
         log().info(f'iterating {it}')
         
     log().info('done')
@@ -54,7 +56,11 @@ if __name__ == '__main__':
         else:
             iteration = int(itstr)
 
+        img_root = os.getenv('IMG_ROOT')
+        if img_root is None:
+            raise ValueError('env for IMG_ROOT is not set')
+
         mongo.connect()
-        asyncio.run(img_vec(iteration))
+        asyncio.run(img_vec(iteration, img_root))
     except Exception as e:
         log().error(e)
