@@ -13,7 +13,7 @@ import lib.mongo as mongo
 from lib.mongo import compress_bin
 from lib.txt_embed import init_txt_model, txt_vector
 
-async def txt_vec(iteration: int):
+async def txt_vec(iteration: int, batch_size: int):
     db = mongo.db('DATABASE')
     colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
 
@@ -39,7 +39,7 @@ async def txt_vec(iteration: int):
             update={'$set': {'text_vector': compressed}}
         )
         batch.append(u)
-        if len(batch) > 100:
+        if len(batch) >= batch_size:
             res = await colle.bulk_write(batch)
             log().info(f'{res.modified_count} updated')
             batch.clear()
@@ -58,9 +58,14 @@ if __name__ == '__main__':
         iteration = 100
         if itstr is not None:
             iteration = int(itstr)
+
+        batchstr = os.getenv('BATCH_SIZE')
+        batch_size = 100
+        if batchstr is not None:
+            batch_size = int(batchstr)
         
         mongo.connect()
         init_txt_model()
-        asyncio.run(txt_vec(iteration))
+        asyncio.run(txt_vec(iteration, batch_size))
     except Exception as e:
         log().error(e)

@@ -12,7 +12,7 @@ from lib.logger import log
 import lib.mongo as mongo
 from lib.mongo import compress_bin
 
-async def img_vec(iteration: int, img_root: str):
+async def img_vec(iteration: int, batch_size: int, img_root: str):
     db = mongo.db('DATABASE')
     colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
 
@@ -48,11 +48,16 @@ if __name__ == '__main__':
         if itstr is not None:
             iteration = int(itstr)
 
+        batchstr = os.getenv('BATCH_SIZE')
+        batch_size = 100
+        if batchstr is not None:
+            batch_size = int(batchstr)
+
         img_root = os.getenv('IMG_ROOT')
         if img_root is None:
             raise ValueError('env for IMG_ROOT is not set')
 
         mongo.connect()
-        asyncio.run(img_vec(iteration, sleep, img_root))
+        asyncio.run(img_vec(iteration, batch_size, img_root))
     except Exception as e:
         log().error(e)
