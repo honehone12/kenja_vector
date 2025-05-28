@@ -34,15 +34,15 @@ async def txt_vec(iteration: int):
         v = txt_vector(desc)
         compressed = compress_bin(v)
 
-        op = UpdateOne(
+        u = UpdateOne(
             filter={'_id': doc['_id']},
             update={'$set': {'text_vector': compressed}}
         )
-        batch.append(op)
-        batch_size = len(batch)
-        if batch_size > 100:
+        batch.append(u)
+        if len(batch) > 100:
             res = await colle.bulk_write(batch)
             log().info(f'{res.modified_count} updated')
+            batch.clear()
             
     res = await colle.bulk_write(batch)
     log().info(f'{res.modified_count} updated')
