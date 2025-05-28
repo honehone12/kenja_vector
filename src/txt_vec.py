@@ -32,12 +32,15 @@ async def txt_vec(iteration: int):
         v = txt_vector(desc)
         compressed = compress_bin(v)
 
+        _id = doc['_id']
         res = await colle.update_one(
-            {'_id': doc['_id']}, 
+            {'_id': _id}, 
             {'$set': {'text_vector': compressed}}
         )
-        if res.modified_count != 1:
-            raise AssertionError(f'failed to update {doc['_id']}')
+        if res.modified_count == 1:
+            log().info(f'{_id} is updated')
+        else:
+            raise AssertionError(f'failed to update {_id}')
             
     log().info('done')
 
