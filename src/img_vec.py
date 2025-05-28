@@ -6,7 +6,6 @@ from pymongo.database import Database
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from bson.binary import BinaryVectorDtype
-import lib.jsonio as jsonio
 from lib.logger import log, init_logger
 from lib.documents import Doc, Img, Done
 from lib.logger import log
@@ -17,16 +16,10 @@ async def img_vec(iteration: int, img_root: str):
     db = mongo.db('DATABASE')
     colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
 
-    done_list = [Done(**done) for done in jsonio.parse('DONE_LIST')]
-
     stream: Cursor[Doc] = colle.find({})
     it = 0
     async for doc in stream:
-        done_found = [d for d in done_list if d.item_id == doc.item_id]
-        l = len(done_found)
-        if l > 1:
-            raise AssertionError(f'{l} same item id found in done list')
-        elif l == 1:
+        if doc.get('img_vector') is not None:
             continue
         
         url = urllib.parse.urlparse(doc['img'])
@@ -39,6 +32,7 @@ async def img_vec(iteration: int, img_root: str):
 
         it += 1
         if it > iteration:
+            log().info('quit on max iteration')
             break
         log().info(f'iterating {it}')
         

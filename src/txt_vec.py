@@ -5,7 +5,6 @@ from pymongo.database import Database
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from bson.binary import BinaryVectorDtype
-import lib.jsonio as jsonio
 from lib.logger import log, init_logger
 from lib.documents import Doc, Img, Done
 from lib.logger import log
@@ -17,20 +16,15 @@ async def txt_vec(iteration: int):
     db = mongo.db('DATABASE')
     colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
 
-    done_list = [Done(**done) for done in jsonio.parse('DONE_LIST')]
-
     stream: Cursor[Doc] = colle.find({})
     it = 0
     async for doc in stream:
-        done_found = [d for d in done_list if d.item_id == doc['item_id']]
-        l = len(done_found)
-        if l > 1:
-            raise AssertionError(f'{l} same item id found in done list')
-        elif l == 1:
+        if doc.get('text_vector') is not None:
             continue
 
         it += 1
         if it > iteration:
+            log().info('quit on max iteration')
             break
         log().info(f'iterating {it}')
 
@@ -48,7 +42,7 @@ async def txt_vec(iteration: int):
 
         done_list.append(Done(item_id=doc['item_id']))
 
-    jsonio.save('DONE_LIST', [done.model_dump() for done in done_list])
+    jsonio.save('json_root', 'txt_vec.json', [done.model_dump() for done in done_list])
     log().info('done')
 
 if __name__ == '__main__':
