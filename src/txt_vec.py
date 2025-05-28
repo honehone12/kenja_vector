@@ -11,9 +11,9 @@ from lib.documents import Doc, Img, Done
 from lib.logger import log
 import lib.mongo as mongo
 from lib.mongo import compress_bin
-from lib.txt_embed import init_model, txt_vector
+from lib.txt_embed import init_txt_model, txt_vector
 
-async def txt_vec():
+async def txt_vec(iteration: int):
     db = mongo.db('DATABASE')
     colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
 
@@ -35,14 +35,34 @@ async def txt_vec():
         desc = doc['description']
         v = txt_vector(desc)
         compressed = compress_bin(v, BinaryVectorDtype.FLOAT32)
-        
+
+        # res = await colle.update_one(
+        #     {'_id': doc['_id']}, 
+        #     {'$set': {'text_vector': compressed}}
+        # )
+        # if res.modified_count != 1:
+        #     log().warn(f'failed to update {doc.item_id.item_type}:{doc.item_id.id}')
+        #     continue
+
+        done_list.append(Done(item_id=doc['item_id']))
+
+    jsonio.save('DONE_LIST', done_list)
+    log().info('done')
 
 if __name__ == '__main__':
+    init_logger(__name__)
+    load_dotenv()
+
     try:
-        init_logger(__name__)
-        load_dotenv()
+        itstr = os.getenv('ITERATION')
+        iteration = 0
+        if itstr is None:
+            iteration = 100
+        else:
+            iteration = int(itstr)
+
         mongo.connect()
-        init_model()
-        asyncio.run(txt_vec())
+        init_txt_model()
+        asyncio.run(txt_vec(iteration))
     except Exception as e:
         log().error(e)

@@ -12,7 +12,7 @@ from lib.logger import log
 import lib.mongo as mongo
 from lib.mongo import compress_bin
 
-async def img_vec():
+async def img_vec(iteration: int):
     db = mongo.db('DATABASE')
     colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
 
@@ -43,10 +43,18 @@ async def img_vec():
     log().info('done')
 
 if __name__ == '__main__':
+    init_logger(__name__)
+    load_dotenv()
+    
     try:
-        init_logger(__name__)
-        load_dotenv()
+        itstr = os.getenv('ITERATION')
+        iteration = 0
+        if itstr is None:
+            iteration = 100
+        else:
+            iteration = int(itstr)
+
         mongo.connect()
-        asyncio.run(img_vec())
+        asyncio.run(img_vec(iteration))
     except Exception as e:
         log().error(e)

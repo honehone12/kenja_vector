@@ -6,7 +6,7 @@ __PROMPT = 'passage'
 
 __model = None
 
-def init_model():
+def init_txt_model():
     global __model
 
     model_name = os.getenv('TXT_EMBED_MODEL')
