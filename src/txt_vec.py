@@ -37,12 +37,8 @@ async def txt_vec(iteration: int):
             {'$set': {'text_vector': compressed}}
         )
         if res.modified_count != 1:
-            log().warn(f'failed to update {doc.item_id.item_type}:{doc.item_id.id}')
-            continue
-
-        done_list.append(Done(item_id=doc['item_id']))
-
-    jsonio.save('json_root', 'txt_vec.json', [done.model_dump() for done in done_list])
+            raise AssertionError(f'failed to update {doc['_id']}')
+            
     log().info('done')
 
 if __name__ == '__main__':
