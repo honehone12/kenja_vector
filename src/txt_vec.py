@@ -12,7 +12,7 @@ import lib.mongo as mongo
 from lib.mongo import compress_bin
 from lib.txt_embed import init_txt_model, txt_vector
 
-async def txt_vec(iteration: int):
+async def txt_vec(iteration: int, sleep: float):
     db = mongo.db('DATABASE')
     colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
 
@@ -41,6 +41,8 @@ async def txt_vec(iteration: int):
             log().info(f'{_id} is updated')
         else:
             raise AssertionError(f'failed to update {_id}')
+
+        await asyncio.sleep(sleep)
             
     log().info('done')
 
@@ -49,15 +51,18 @@ if __name__ == '__main__':
     load_dotenv()
 
     try:
-        itstr = os.getenv('ITERATION')
-        iteration = 0
-        if itstr is None:
-            iteration = 100
-        else:
+        itstr = os.getenv('ITERATION_I')
+        iteration = 100
+        if itstr is not None:
             iteration = int(itstr)
+
+        sleepstr = os.getenv('SLEEP_F')
+        sleep = 0
+        if sleepstr is not None:
+            sleep = float(sleepstr)
 
         mongo.connect()
         init_txt_model()
-        asyncio.run(txt_vec(iteration))
+        asyncio.run(txt_vec(iteration, sleep))
     except Exception as e:
         log().error(e)
