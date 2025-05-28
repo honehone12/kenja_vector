@@ -19,16 +19,18 @@ async def txt_vec(iteration: int, batch_size: int):
 
     stream: Cursor[Doc] = colle.find({})
     it = 0
+    total = 0
     batch = []
     async for doc in stream:
         if doc.get('text_vector') is not None:
+            total += 1
             continue
 
         it += 1
+        total += 1
         if it > iteration:
             log().info('quit on max iteration')
             break
-        log().info(f'iterating {it}')
 
         desc = doc['description']
         v = txt_vector(desc)
@@ -43,6 +45,8 @@ async def txt_vec(iteration: int, batch_size: int):
             res = await colle.bulk_write(batch)
             log().info(f'{res.modified_count} updated')
             batch.clear()
+        
+        log().info(f'iteration {it} ({total})')
     
     if len(batch) > 0:
         res = await colle.bulk_write(batch)

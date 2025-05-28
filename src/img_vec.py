@@ -18,8 +18,10 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
 
     stream: Cursor[Doc] = colle.find({})
     it = 0
+    total = 0
     async for doc in stream:
         if doc.get('img_vector') is not None:
+            total += 1
             continue
         
         url = urllib.parse.urlparse(doc['img'])
@@ -28,13 +30,17 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
         path = img_root + path
         
         if not os.path.exists(path):
+            total += 1
             continue
 
         it += 1
+        total += 1
         if it > iteration:
             log().info('quit on max iteration')
             break
-        log().info(f'iterating {it}')
+
+        
+        log().info(f'iteration {it} ({total})')
         
     log().info('done')
 
