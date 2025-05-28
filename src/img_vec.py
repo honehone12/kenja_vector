@@ -7,7 +7,7 @@ from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from bson.binary import BinaryVectorDtype
 from lib.logger import log, init_logger
-from lib.documents import Doc, Img, Done
+from lib.documents import Img
 from lib.logger import log
 import lib.mongo as mongo
 from lib.mongo import compress_bin
@@ -26,7 +26,7 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
         
         url = urllib.parse.urlparse(doc['img'])
         path = url.path
-        path.removesuffix
+        path = path.removesuffix()
         path = img_root + path
         
         if not os.path.exists(path):
@@ -38,9 +38,9 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
         if it > iteration:
             log().info('quit on max iteration')
             break
-
-        
         log().info(f'iteration {it} ({total})')
+
+
         
     log().info('done')
 

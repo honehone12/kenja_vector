@@ -1,11 +1,10 @@
 from typing import TypedDict
-from pydantic import BaseModel
 from bson import ObjectId
 
 ITEM_T_ANIME = 1
 ITEM_T_CHARACTER = 2
 
-class ItemId(BaseModel):
+class ItemId(TypedDict):
     id: int
     item_type: int
 
@@ -17,12 +16,10 @@ class ItemId(BaseModel):
         else:
             raise ValueError('unexpected instance type')
 
-class Done(BaseModel):
+class Img(TypedDict):
+    _id: ObjectId
     item_id: ItemId
-
-class Img(BaseModel):
-    item_id: ItemId
-    path: str
+    img: str
 
 class Doc(TypedDict):
     _id: ObjectId

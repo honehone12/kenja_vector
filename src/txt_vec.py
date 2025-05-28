@@ -7,7 +7,7 @@ from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from bson.binary import BinaryVectorDtype
 from lib.logger import log, init_logger
-from lib.documents import Doc, Img, Done
+from lib.documents import Doc
 from lib.logger import log
 import lib.mongo as mongo
 from lib.mongo import compress_bin
@@ -31,6 +31,7 @@ async def txt_vec(iteration: int, batch_size: int):
         if it > iteration:
             log().info('quit on max iteration')
             break
+        log().info(f'iteration {it} ({total})')
 
         desc = doc['description']
         v = txt_vector(desc)
@@ -46,8 +47,6 @@ async def txt_vec(iteration: int, batch_size: int):
             log().info(f'{res.modified_count} updated')
             batch.clear()
         
-        log().info(f'iteration {it} ({total})')
-    
     if len(batch) > 0:
         res = await colle.bulk_write(batch)
         log().info(f'{res.modified_count} updated')
