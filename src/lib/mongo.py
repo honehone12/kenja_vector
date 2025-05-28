@@ -2,7 +2,7 @@ import os
 from pymongo import AsyncMongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection
-from torch import Tensor
+from numpy import ndarray
 from bson.binary import Binary, BinaryVectorDtype
 
 __client = None
@@ -30,5 +30,5 @@ def colle(db: Database, key: str) -> Collection:
         raise ValueError(f'env for {key} is not set')
     return db[collection]
 
-def compress_bin(v: Tensor, bin_type: BinaryVectorDtype) -> Binary:
-    Binary.from_vector(v, bin_type)
+def compress_bin(v: ndarray, bin_type: BinaryVectorDtype) -> Binary:
+    return Binary.from_vector(vector=v, dtype=bin_type)

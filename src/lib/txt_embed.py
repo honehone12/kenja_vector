@@ -1,6 +1,8 @@
 import os
 from sentence_transformers import SentenceTransformer
-from torch import Tensor
+from sentence_transformers.util import normalize_embeddings
+from numpy import ndarray
+from numpy.linalg import norm
 
 __PROMPT = 'passage'
 
@@ -15,12 +17,18 @@ def init_txt_model():
 
     __model = SentenceTransformer(model_name, trust_remote_code=True)
 
-def txt_vector(sentence: str) -> Tensor:
+def txt_vector(sentence: str) -> ndarray:
     if __model is None:
         raise ValueError('model is not initialized')
 
-    return __model.encode(
+    raw = __model.encode(
         sentence, 
         prompt_name=__PROMPT,
-        normalize_embeddings=True
+        convert_to_numpy=True
     )
+    normal = norm(raw)
+    if normal == 0:
+        return raw
+    else:
+        return raw / normal
+

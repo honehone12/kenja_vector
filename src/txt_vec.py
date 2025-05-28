@@ -22,7 +22,7 @@ async def txt_vec(iteration: int):
     stream: Cursor[Doc] = colle.find({})
     it = 0
     async for doc in stream:
-        done_found = [d for d in done_list if d.item_id == doc.item_id]
+        done_found = [d for d in done_list if d.item_id == doc['item_id']]
         l = len(done_found)
         if l > 1:
             raise AssertionError(f'{l} same item id found in done list')
@@ -30,6 +30,8 @@ async def txt_vec(iteration: int):
             continue
 
         it += 1
+        if it > iteration:
+            break
         log().info(f'iterating {it}')
 
         desc = doc['description']
@@ -46,7 +48,7 @@ async def txt_vec(iteration: int):
 
         done_list.append(Done(item_id=doc['item_id']))
 
-    jsonio.save('DONE_LIST', done_list)
+    jsonio.save('DONE_LIST', [done.model_dump() for done in done_list])
     log().info('done')
 
 if __name__ == '__main__':

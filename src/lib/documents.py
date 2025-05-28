@@ -12,6 +12,8 @@ class ItemId(BaseModel):
     def __eq__(self, other) -> bool:
         if isinstance(other, ItemId):
             return self.item_type == other.item_type and self.id == other.id
+        elif isinstance(other, dict):
+            return self.item_type == other['item_type'] and self.id == other['id']
         else:
             raise ValueError('unexpected instance type')
 
