@@ -43,9 +43,10 @@ async def txt_vec(iteration: int):
             res = await colle.bulk_write(batch)
             log().info(f'{res.modified_count} updated')
             batch.clear()
-            
-    res = await colle.bulk_write(batch)
-    log().info(f'{res.modified_count} updated')
+    
+    if len(batch) > 0:
+        res = await colle.bulk_write(batch)
+        log().info(f'{res.modified_count} updated')
     log().info('done')
 
 if __name__ == '__main__':
