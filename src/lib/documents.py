@@ -16,12 +16,8 @@ class ItemId(TypedDict):
         else:
             raise ValueError('unexpected instance type')
 
-class Img(TypedDict):
-    _id: ObjectId
-    item_id: ItemId
-    img: str
-
 class Doc(TypedDict):
     _id: ObjectId
     item_id: ItemId
+    img: str
     description: str

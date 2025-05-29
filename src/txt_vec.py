@@ -13,6 +13,8 @@ import lib.mongo as mongo
 from lib.mongo import compress_bin
 from lib.txt_embed import init_txt_model, txt_vector
 
+__TXT_VECTOR_FIELD = 'text_vector'
+
 async def txt_vec(iteration: int, batch_size: int):
     db = mongo.db('DATABASE')
     colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
@@ -22,7 +24,7 @@ async def txt_vec(iteration: int, batch_size: int):
     total = 0
     batch = []
     async for doc in stream:
-        if doc.get('text_vector') is not None:
+        if doc.get(__TXT_VECTOR_FIELD) is not None:
             total += 1
             continue
 
@@ -39,7 +41,7 @@ async def txt_vec(iteration: int, batch_size: int):
 
         u = UpdateOne(
             filter={'_id': doc['_id']},
-            update={'$set': {'text_vector': compressed}}
+            update={'$set': {__TXT_VECTOR_FIELD: compressed}}
         )
         batch.append(u)
         if len(batch) >= batch_size:

@@ -2,16 +2,19 @@ import os
 import asyncio
 import urllib
 from dotenv import load_dotenv
+from pymongo import UpdateOne
 from pymongo.database import Database
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from bson.binary import BinaryVectorDtype
 from lib.logger import log, init_logger
-from lib.documents import Img
+from lib.documents import Doc
 from lib.logger import log
 import lib.mongo as mongo
 from lib.mongo import compress_bin
 from lib.img_embed import init_img_model, img_vector
+
+__IMG_VECTOR_FIELD = 'image_vector'
 
 async def img_vec(iteration: int, batch_size: int, img_root: str):
     db = mongo.db('DATABASE')
@@ -20,8 +23,9 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
     stream: Cursor[Doc] = colle.find({})
     it = 0
     total = 0
+    batch = []
     async for doc in stream:
-        if doc.get('img_vector') is not None:
+        if doc.get(__IMG_VECTOR_FIELD) is not None:
             total += 1
             continue
         
@@ -42,8 +46,21 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
         log().info(f'iteration {it} ({total})')
 
         v = img_vector(path)
-        log().info(v)
+        compressed = compress_bin(v)
         
+        u = UpdateOne(
+            filter={'_id': doc['_id']},
+            update={'$set': {__IMG_VECTOR_FIELD: compressed}}
+        )
+        batch.append(u)
+        if len(batch) >= batch_size:
+            res = await colle.bulk_write(batch)
+            log().info(f'{res.modified_count} updated')
+            batch.clear()
+    
+    if len(batch) > 0:
+        res = await colle.bulk_write(batch)
+        log().info(f'{res.modified_count} updated')
     log().info('done')
 
 if __name__ == '__main__':
