@@ -14,12 +14,11 @@ def init_img_model():
     global __model
     global __device
 
-    __device = torch.device('cuda')
-
     model_name = os.getenv('IMG_EMBED_MODEL')
     if model_name is None:
         raise ValueError('env for IMG_EMBED_MODEL is not set')
 
+    __device = torch.device('cuda')
     __processor = AutoImageProcessor.from_pretrained(model_name, use_fast=True)
     __model = AutoModel.from_pretrained(model_name, trust_remote_code=True)
     __model.to(__device)
@@ -38,6 +37,6 @@ def img_vector(img_path: str) -> ndarray:
         proc = __processor(img, return_tensors='pt', device='cuda')
         raw = __model(**proc).last_hidden_state
         crs_tkn = raw[:, 0]
-        normalized = F.normalize(crs_tkn, p=2, dim=1)
+        normalized = F.normalize(crs_tkn, p=2.0, dim=1)
         sync = normalized.cpu() 
         return sync.squeeze().numpy()
