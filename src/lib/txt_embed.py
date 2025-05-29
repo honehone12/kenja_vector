@@ -5,6 +5,7 @@ from numpy import ndarray
 from numpy.linalg import norm
 
 __PROMPT = 'passage'
+__PREFIX = 'search_document: '
 
 __model = None
 
@@ -18,6 +19,21 @@ def init_txt_model():
     __model = SentenceTransformer(model_name, trust_remote_code=True)
 
 def txt_vector(sentence: str) -> ndarray:
+    if __model is None:
+        raise ValueError('model is not initialized')
+
+    raw = __model.encode(
+        __PREFIX + sentence, 
+        show_progress_bar=False,
+        convert_to_numpy=True
+    )
+    normal = norm(raw)
+    if normal == 0:
+        return raw
+    else:
+        return raw / normal
+
+def txt_vector_v2(sentence: str) -> ndarray:
     if __model is None:
         raise ValueError('model is not initialized')
 
