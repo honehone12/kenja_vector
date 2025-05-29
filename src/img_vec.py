@@ -11,6 +11,7 @@ from lib.documents import Img
 from lib.logger import log
 import lib.mongo as mongo
 from lib.mongo import compress_bin
+from lib.img_embed import init_img_model, img_vector
 
 async def img_vec(iteration: int, batch_size: int, img_root: str):
     db = mongo.db('DATABASE')
@@ -26,7 +27,7 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
         
         url = urllib.parse.urlparse(doc['img'])
         path = url.path
-        path = path.removesuffix()
+        path = path.removesuffix('/')
         path = img_root + path
         
         if not os.path.exists(path):
@@ -40,7 +41,8 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
             break
         log().info(f'iteration {it} ({total})')
 
-
+        v = img_vector(path)
+        log().info(v)
         
     log().info('done')
 
@@ -63,6 +65,7 @@ if __name__ == '__main__':
         if img_root is None:
             raise ValueError('env for IMG_ROOT is not set')
 
+        init_img_model()
         mongo.connect()
         asyncio.run(img_vec(iteration, batch_size, img_root))
     except Exception as e:
