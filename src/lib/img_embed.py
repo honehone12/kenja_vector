@@ -39,4 +39,4 @@ def img_vector(img_path: str) -> ndarray:
         crs_tkn = raw[:, 0]
         normalized = F.normalize(crs_tkn, p=2.0, dim=1)
         sync = normalized.cpu() 
-        return sync.squeeze().numpy()
+        return sync.squeeze(0).numpy()
