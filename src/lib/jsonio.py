@@ -1,5 +1,6 @@
 import os
 import json
+from typing import Any
 
 def parse(dir_key: str, file_name: str):
     json_root = os.getenv(dir_key)
@@ -13,7 +14,7 @@ def parse(dir_key: str, file_name: str):
         with open(file_name, 'x') as file:
             return []
 
-def save(dir_key: str, file_name: str, data: any):
+def save(dir_key: str, file_name: str, data: Any):
     json_root = os.getenv(dir_key)
     if json_root is None:
         raise ValueError(f'env for {dir_key} is not set')

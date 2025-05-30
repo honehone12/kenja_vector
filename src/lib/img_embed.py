@@ -2,7 +2,6 @@ import os
 from transformers import AutoModel, AutoImageProcessor
 import torch
 import torch.nn.functional as F
-from numpy import ndarray
 from PIL import Image
 
 __processor = None
@@ -24,7 +23,7 @@ def init_img_model():
     __model.to(__device)
     __model.eval()
 
-def img_vector(img_path: str) -> ndarray:
+def img_vector(img_path: str):
     if __processor is None:
         raise ValueError('processor is not initialized')
     if __model is None:

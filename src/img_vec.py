@@ -1,15 +1,12 @@
 import os
 import asyncio
-import urllib
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 from pymongo import UpdateOne
-from pymongo.database import Database
-from pymongo.collection import Collection
-from pymongo.cursor import Cursor
-from bson.binary import BinaryVectorDtype
+from pymongo.asynchronous.collection import AsyncCollection
+from pymongo.asynchronous.cursor import AsyncCursor
 from lib.logger import log, init_logger
 from lib.documents import Doc
-from lib.logger import log
 import lib.mongo as mongo
 from lib.mongo import compress_bin
 from lib.img_embed import init_img_model, img_vector
@@ -18,9 +15,9 @@ __IMG_VECTOR_FIELD = 'image_vector'
 
 async def img_vec(iteration: int, batch_size: int, img_root: str):
     db = mongo.db('DATABASE')
-    colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
+    colle: AsyncCollection[Doc] = mongo.colle(db, 'COLLECTION')
 
-    stream: Cursor[Doc] = colle.find({})
+    stream: AsyncCursor[Doc] = colle.find({})
     it = 0
     total = 0
     batch = []
@@ -29,7 +26,7 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
             total += 1
             continue
         
-        url = urllib.parse.urlparse(doc['img'])
+        url = urlparse(doc['img'])
         path = url.path
         path = path.removesuffix('/')
         path = img_root + path

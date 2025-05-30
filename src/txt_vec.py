@@ -2,13 +2,10 @@ import os
 import asyncio
 from dotenv import load_dotenv
 from pymongo import UpdateOne
-from pymongo.database import Database
-from pymongo.collection import Collection
-from pymongo.cursor import Cursor
-from bson.binary import BinaryVectorDtype
+from pymongo.asynchronous.collection import AsyncCollection
+from pymongo.asynchronous.cursor import AsyncCursor
 from lib.logger import log, init_logger
 from lib.documents import Doc
-from lib.logger import log
 import lib.mongo as mongo
 from lib.mongo import compress_bin
 from lib.txt_embed import init_txt_model, txt_vector
@@ -17,9 +14,9 @@ __TXT_VECTOR_FIELD = 'text_vector'
 
 async def txt_vec(iteration: int, batch_size: int):
     db = mongo.db('DATABASE')
-    colle: Collection[Doc] = mongo.colle(db, 'COLLECTION')
+    colle: AsyncCollection[Doc] = mongo.colle(db, 'COLLECTION')
 
-    stream: Cursor[Doc] = colle.find({})
+    stream: AsyncCursor[Doc] = colle.find({})
     it = 0
     total = 0
     batch = []
@@ -37,7 +34,9 @@ async def txt_vec(iteration: int, batch_size: int):
 
         desc = doc['description']
         v = txt_vector(desc)
-        compressed = compress_bin(v)
+        compressed = compress_bin(v.tolist())
+
+        log().info(compressed)
 
         u = UpdateOne(
             filter={'_id': doc['_id']},

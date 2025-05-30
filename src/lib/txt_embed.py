@@ -1,6 +1,6 @@
 import os
+from typing import Any
 from sentence_transformers import SentenceTransformer
-from sentence_transformers.util import normalize_embeddings
 from numpy import ndarray
 from numpy.linalg import norm
 
@@ -18,14 +18,14 @@ def init_txt_model():
 
     __model = SentenceTransformer(model_name, trust_remote_code=True)
 
-def nomalize(raw: ndarray) -> ndarray:
+def normalize(raw: ndarray[Any, Any]):
     normal = norm(raw)
     if normal == 0:
         return raw
     else:
         return raw / normal
 
-def txt_vector(sentence: str) -> ndarray:
+def txt_vector(sentence: str):
     if __model is None:
         raise ValueError('model is not initialized')
 
@@ -37,7 +37,7 @@ def txt_vector(sentence: str) -> ndarray:
     return normalize(raw)
     
 
-def txt_vector_v2(sentence: str) -> ndarray:
+def txt_vector_v2(sentence: str):
     if __model is None:
         raise ValueError('model is not initialized')
 

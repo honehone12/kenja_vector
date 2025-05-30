@@ -1,8 +1,8 @@
 import os
-from pymongo import AsyncMongoClient
-from pymongo.database import Database
-from pymongo.collection import Collection
+from typing import Any
 from numpy import ndarray
+from pymongo import AsyncMongoClient
+from pymongo.asynchronous.database import AsyncDatabase
 from bson.binary import Binary, BinaryVectorDtype
 
 __client = None
@@ -15,7 +15,7 @@ def connect():
         raise ValueError('env for MONGO_URI not set')
     __client = AsyncMongoClient(uri)
 
-def db(key: str) -> Database:
+def db(key: str):
     if __client is None:
         raise ValueError('client is not initialized')
 
@@ -24,11 +24,11 @@ def db(key: str) -> Database:
         raise ValueError(f'env for {key} not set')
     return __client[db]
 
-def colle(db: Database, key: str) -> Collection:
+def colle(db: AsyncDatabase[Any], key: str):
     collection = os.getenv(key)
     if collection is None:
         raise ValueError(f'env for {key} is not set')
     return db[collection]
 
-def compress_bin(v: ndarray) -> Binary:
+def compress_bin(v: list[float]):
     return Binary.from_vector(vector=v, dtype=BinaryVectorDtype.FLOAT32)

@@ -2,7 +2,7 @@ import logging
 
 __log = None
 
-def init_logger(name: str) -> logging.Logger:
+def init_logger(name: str):
     global __log
 
     logging.basicConfig(
@@ -11,7 +11,6 @@ def init_logger(name: str) -> logging.Logger:
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     __log = logging.getLogger(name)
-    return __log
 
 def log() -> logging.Logger:
     if __log is None:
