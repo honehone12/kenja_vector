@@ -42,7 +42,7 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
             break
         log().info(f'iteration {it} ({total}) {path}')
         v = img_vector(path)
-        compressed = compress_bin(v)
+        compressed = compress_bin(v.tolist())
         
         u = UpdateOne(
             filter={'_id': doc['_id']},
@@ -61,9 +61,11 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
 
 if __name__ == '__main__':
     init_logger(__name__)
-    load_dotenv()
     
     try:
+        if not load_dotenv():
+            raise RuntimeError('failed to initialize dotenv')
+
         itstr = os.getenv('ITERATION')
         iteration = 100
         if itstr is not None:

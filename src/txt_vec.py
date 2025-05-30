@@ -55,9 +55,12 @@ async def txt_vec(iteration: int, batch_size: int):
 
 if __name__ == '__main__':
     init_logger(__name__)
-    load_dotenv()
+    
 
     try:
+        if not load_dotenv():
+            raise RuntimeError('failed to initialize dotenv')
+        
         itstr = os.getenv('ITERATION')
         iteration = 100
         if itstr is not None:
