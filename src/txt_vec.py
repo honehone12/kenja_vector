@@ -34,7 +34,7 @@ async def txt_vec(iteration: int, batch_size: int):
 
         desc = doc['description']
         v = txt_vector(desc)
-        compressed = compress_bin(v.tolist())
+        compressed = compress_bin(v)
 
         log().info(compressed)
 

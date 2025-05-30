@@ -30,5 +30,5 @@ def colle(db: AsyncDatabase[Any], key: str):
         raise ValueError(f'env for {key} is not set')
     return db[collection]
 
-def compress_bin(v: list[float]):
+def compress_bin(v: ndarray[Any, Any]):
     return Binary.from_vector(vector=v, dtype=BinaryVectorDtype.FLOAT32)

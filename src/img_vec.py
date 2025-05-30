@@ -42,7 +42,7 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
             break
         log().info(f'iteration {it} ({total}) {path}')
         v = img_vector(path)
-        compressed = compress_bin(v.tolist())
+        compressed = compress_bin(v)
         
         u = UpdateOne(
             filter={'_id': doc['_id']},
