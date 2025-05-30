@@ -1,6 +1,5 @@
 import os
 from typing import Any
-from numpy import ndarray
 from pymongo import AsyncMongoClient
 from pymongo.asynchronous.database import AsyncDatabase
 from bson.binary import Binary, BinaryVectorDtype
@@ -30,5 +29,5 @@ def colle(db: AsyncDatabase[Any], key: str):
         raise ValueError(f'env for {key} is not set')
     return db[collection]
 
-def compress_bin(v: ndarray[Any, Any]):
-    return Binary.from_vector(vector=v, dtype=BinaryVectorDtype.FLOAT32)
+def compress_bin(vector):
+    return Binary.from_vector(vector, dtype=BinaryVectorDtype.FLOAT32)
