@@ -27,11 +27,17 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
             continue
         
         url = urlparse(doc['img'])
+        if url is None or len(url) == 0:
+            log().warning('skipping null img')
+            total += 1
+            continue
+
         path = url.path
         path = path.removesuffix('/')
         path = img_root + path
         
         if not os.path.exists(path):
+            log().warning(f'img not found {path}')
             total += 1
             continue
 

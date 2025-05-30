@@ -33,6 +33,11 @@ async def txt_vec(iteration: int, batch_size: int):
         log().info(f'iteration {it} ({total})')
 
         desc = doc['description']
+        if desc is None or len(desc) == 0:
+            log().warning('skipping null text')
+            total += 1
+            continue
+        
         v = txt_vector(desc)
         compressed = compress_bin(v)
 
