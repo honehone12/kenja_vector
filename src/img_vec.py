@@ -2,7 +2,7 @@ import os
 import asyncio
 from urllib.parse import urlparse
 from dotenv import load_dotenv
-from pymongo import UpdateOne
+from pymongo import DeleteOne, UpdateOne
 from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.cursor import AsyncCursor
 from lib.logger import log, init_logger
@@ -28,9 +28,7 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
         
         url = urlparse(doc['img'])
         if url is None or len(url) == 0:
-            log().warning('skipping null img')
-            total += 1
-            continue
+            raise ValueError(f'null image: {doc}')
 
         path = url.path
         path = path.removesuffix('/')
@@ -39,6 +37,10 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
         if not os.path.exists(path):
             log().warning(f'img not found {path}')
             total += 1
+            d = DeleteOne(
+                filter={'_id': doc['_id']}
+            )
+            batch.append(d)
             continue
 
         it += 1
@@ -52,9 +54,13 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
         
         u = UpdateOne(
             filter={'_id': doc['_id']},
-            update={'$set': {__IMG_VECTOR_FIELD: compressed}}
+            update={
+                '$set': {__IMG_VECTOR_FIELD: compressed},
+                '$unset': {'img': ''}
+            }
         )
         batch.append(u)
+        
         if len(batch) >= batch_size:
             res = await colle.bulk_write(batch)
             log().info(f'{res.modified_count} updated')

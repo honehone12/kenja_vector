@@ -34,20 +34,17 @@ async def txt_vec(iteration: int, batch_size: int):
 
         desc = doc['description']
         if desc is None or len(desc) == 0:
-            log().warning('skipping null text')
-            total += 1
-            continue
+            raise ValueError(f'null text: {doc}')
         
         v = txt_vector(desc)
         compressed = compress_bin(v)
-
-        log().info(compressed)
 
         u = UpdateOne(
             filter={'_id': doc['_id']},
             update={'$set': {__TXT_VECTOR_FIELD: compressed}}
         )
         batch.append(u)
+
         if len(batch) >= batch_size:
             res = await colle.bulk_write(batch)
             log().info(f'{res.modified_count} updated')

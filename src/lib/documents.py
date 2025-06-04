@@ -19,6 +19,5 @@ class ItemId(TypedDict):
 
 class Doc(TypedDict):
     _id: ObjectId
-    item_id: ItemId
     img: str
     description: str
