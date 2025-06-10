@@ -59,7 +59,7 @@ async def img_vec(
         if it > iteration:
             log().info('quit on max iteration')
             break
-        log().info(f'iteration {it} ({total}) {path}')
+        log().info(f'iteration {it} ({total})')
         v = img_vector(path)
         compressed = compress_bin(v)
         
