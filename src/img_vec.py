@@ -6,14 +6,19 @@ from pymongo import DeleteOne, UpdateOne
 from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.cursor import AsyncCursor
 from lib.logger import log, init_logger
-from lib.documents import Doc
+from lib.documents import RATING_ALL_AGES, RATING_HENTAI, Doc
 import lib.mongo as mongo
 from lib.mongo import compress_bin
 from lib.img_embed import init_img_model, img_vector
 
 __IMG_VECTOR_FIELD = 'image_vector'
 
-async def img_vec(iteration: int, batch_size: int, img_root: str):
+async def img_vec(
+    iteration: int, 
+    batch_size: int, 
+    img_root: str,
+    img_root_h: str
+):
     db = mongo.db('DATABASE')
     colle: AsyncCollection[Doc] = mongo.colle(db, 'COLLECTION')
 
@@ -27,13 +32,19 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
             continue
         
         url = urlparse(doc['img'])
-        if url is None or len(url) == 0:
+        if len(url) == 0:
             raise ValueError(f'null image: {doc}')
 
+        rating = doc['rating']
         path = url.path
         path = path.removesuffix('/')
-        path = img_root + path
-        
+        if rating == RATING_ALL_AGES:
+            path = img_root + path
+        elif rating == RATING_HENTAI:
+            path = img_root_h + path
+        else: 
+            raise ValueError('unexpected rating')
+
         if not os.path.exists(path):
             log().warning(f'img not found {path}')
             total += 1
@@ -92,8 +103,17 @@ if __name__ == '__main__':
         if img_root is None:
             raise ValueError('env for IMG_ROOT is not set')
 
+        img_root_h = os.getenv('IMG_ROOT_H')
+        if img_root_h is None:
+            raise ValueError('env for IMG_ROOT_H is not set')
+
         init_img_model()
         mongo.connect()
-        asyncio.run(img_vec(iteration, batch_size, img_root))
+        asyncio.run(img_vec(
+            iteration, 
+            batch_size, 
+            img_root, 
+            img_root_h
+        ))
     except Exception as e:
         log().error(e)

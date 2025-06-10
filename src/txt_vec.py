@@ -33,7 +33,7 @@ async def txt_vec(iteration: int, batch_size: int):
         log().info(f'iteration {it} ({total})')
 
         desc = doc['description']
-        if desc is None or len(desc) == 0:
+        if len(desc) == 0:
             raise ValueError(f'null text: {doc}')
         
         v = txt_vector(desc)
