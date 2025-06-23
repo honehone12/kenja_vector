@@ -23,7 +23,7 @@ def db(key: str):
         raise ValueError(f'env for {key} not set')
     return __client[db]
 
-def colle(db: AsyncDatabase[Any], key: str):
+def collection(db: AsyncDatabase[Any], key: str):
     collection = os.getenv(key)
     if collection is None:
         raise ValueError(f'env for {key} is not set')

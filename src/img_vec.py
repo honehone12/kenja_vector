@@ -6,28 +6,21 @@ from pymongo import DeleteOne, UpdateOne
 from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.cursor import AsyncCursor
 from lib.logger import log, init_logger
-from lib.documents import RATING_ALL_AGES, RATING_HENTAI, Doc
+from lib.documents import RATING_ALL_AGES, RATING_HENTAI, IMG_VEC_FIELD, Doc
 import lib.mongo as mongo
 from lib.mongo import compress_bin
 from lib.img_embed import init_img_model, img_vector
 
-__IMG_VECTOR_FIELD = 'image_vector'
-
-async def img_vec(
-    iteration: int, 
-    batch_size: int, 
-    img_root: str,
-    img_root_h: str
-):
+async def img_vec(iteration: int, batch_size: int, img_root: str):
     db = mongo.db('DATABASE')
-    colle: AsyncCollection[Doc] = mongo.colle(db, 'COLLECTION')
+    colle: AsyncCollection[Doc] = mongo.collection(db, 'COLLECTION')
 
     stream: AsyncCursor[Doc] = colle.find({})
     it = 0
     total = 0
     batch = []
     async for doc in stream:
-        if doc.get(__IMG_VECTOR_FIELD) is not None:
+        if doc.get(IMG_VEC_FIELD) is not None:
             total += 1
             continue
         
@@ -41,7 +34,7 @@ async def img_vec(
         if rating == RATING_ALL_AGES:
             path = img_root + path
         elif rating == RATING_HENTAI:
-            path = img_root_h + path
+            path = img_root + '/H' + path
         else: 
             raise ValueError('unexpected rating')
 
@@ -66,7 +59,7 @@ async def img_vec(
         u = UpdateOne(
             filter={'_id': doc['_id']},
             update={
-                '$set': {__IMG_VECTOR_FIELD: compressed},
+                '$set': {IMG_VEC_FIELD: compressed},
                 '$unset': {'img': ''}
             }
         )
@@ -101,19 +94,10 @@ if __name__ == '__main__':
 
         img_root = os.getenv('IMG_ROOT')
         if img_root is None:
-            raise ValueError('env for IMG_ROOT is not set')
-
-        img_root_h = os.getenv('IMG_ROOT_H')
-        if img_root_h is None:
-            raise ValueError('env for IMG_ROOT_H is not set')
+            raise ValueError('env for image root is not set')
 
         init_img_model()
         mongo.connect()
-        asyncio.run(img_vec(
-            iteration, 
-            batch_size, 
-            img_root, 
-            img_root_h
-        ))
+        asyncio.run(img_vec(iteration, batch_size, img_root))
     except Exception as e:
         log().error(e)

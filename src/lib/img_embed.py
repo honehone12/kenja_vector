@@ -15,7 +15,7 @@ def init_img_model():
 
     model_name = os.getenv('IMG_EMBED_MODEL')
     if model_name is None:
-        raise ValueError('env for IMG_EMBED_MODEL is not set')
+        raise ValueError('env for image embed model is not set')
 
     __device = torch.device('cuda')
     __processor = AutoImageProcessor.from_pretrained(model_name, use_fast=True)

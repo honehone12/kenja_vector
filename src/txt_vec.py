@@ -5,23 +5,21 @@ from pymongo import UpdateOne
 from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.cursor import AsyncCursor
 from lib.logger import log, init_logger
-from lib.documents import Doc
+from lib.documents import TXT_VEC_FIELD, Doc
 import lib.mongo as mongo
 from lib.mongo import compress_bin
 from lib.txt_embed import init_txt_model, txt_vector
 
-__TXT_VECTOR_FIELD = 'text_vector'
-
 async def txt_vec(iteration: int, batch_size: int):
     db = mongo.db('DATABASE')
-    colle: AsyncCollection[Doc] = mongo.colle(db, 'COLLECTION')
+    colle: AsyncCollection[Doc] = mongo.collection(db, 'COLLECTION')
 
     stream: AsyncCursor[Doc] = colle.find({})
     it = 0
     total = 0
     batch = []
     async for doc in stream:
-        if doc.get(__TXT_VECTOR_FIELD) is not None:
+        if doc.get(TXT_VEC_FIELD) is not None:
             total += 1
             continue
 
@@ -41,7 +39,7 @@ async def txt_vec(iteration: int, batch_size: int):
 
         u = UpdateOne(
             filter={'_id': doc['_id']},
-            update={'$set': {__TXT_VECTOR_FIELD: compressed}}
+            update={'$set': {TXT_VEC_FIELD: compressed}}
         )
         batch.append(u)
 
@@ -58,7 +56,6 @@ async def txt_vec(iteration: int, batch_size: int):
 if __name__ == '__main__':
     init_logger(__name__)
     
-
     try:
         if not load_dotenv():
             raise RuntimeError('failed to initialize dotenv')

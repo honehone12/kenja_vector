@@ -14,7 +14,7 @@ def init_txt_model():
 
     model_name = os.getenv('TXT_EMBED_MODEL')
     if model_name is None:
-        raise ValueError('env for TEXT_EMBED_MODEL is not set')
+        raise ValueError('env for text embed model is not set')
 
     __model = SentenceTransformer(model_name, trust_remote_code=True)
 
