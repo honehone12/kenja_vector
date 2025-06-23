@@ -3,7 +3,6 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 from colpali_engine.models import ColQwen2 as Model, ColQwen2Processor as Processor
-#from colpali_engine.models import ColPali as Model, ColPaliProcessor as Processor
 
 __model = None
 __processor = None
