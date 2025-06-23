@@ -6,8 +6,8 @@ from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.cursor import AsyncCursor
 from lib import mongo
 from lib.documents import IMG_VEC_FIELD, TXT_VEC_FIELD, STF_VEC_FIELD, Doc
-from lib.logger import init_logger, log
-from lib.multi_modal_embed import img_vector, txt_vector, init_multi_modal_model
+from lib.multi_modal_embed import init_multi_modal_model, img_vector, txt_vector
+#from lib.logger import init_logger, log
 
 async def img(img_root: str, url: str):
     if len(url) == 0:
@@ -15,22 +15,26 @@ async def img(img_root: str, url: str):
 
     path = img_root + urlparse(url).path.removesuffix('/')
     if not os.path.exists(path):
-        log().warning(f'image not found {path}')
+        #log().warning(f'image not found {path}')
+        print(f'image not found {path}')
         return
 
     v = img_vector(path)
-    log().info(v.shape)
+    #log().info(v.shape)
+    print(v.shape)
 
 async def txt(text: str):
     if len(text) == 0:
-        raise ValueError('null text')
+        #log().warning('null text')
+        print('null text')
+        return
 
     v = txt_vector(text)
-    log().info(v.shape)
+    #log().info(v.shape)
+    print(v.shape)
 
 
 async def multi_modal_vec(iteration: int, batch_size: int, img_root: str):
-    l = log()
     db = mongo.db('DATABASE')
     cl: AsyncCollection[Doc] = mongo.collection(db, 'COLLECTION')
     stream: AsyncCursor[Doc] = cl.find({})
@@ -42,21 +46,25 @@ async def multi_modal_vec(iteration: int, batch_size: int, img_root: str):
         if doc.get(IMG_VEC_FIELD) is None:
             await img(img_root, doc['img'])
 
-        # if doc.get(TXT_VEC_FIELD) is None:
-        #     txt(doc['description'])
+        if doc.get(TXT_VEC_FIELD) is None:
+            await txt(doc['description'])
 
-        # if doc.get(STF_VEC_FIELD) is None:
-        #     txt(doc['staff'])
-    
+        if doc.get(STF_VEC_FIELD) is None:
+            await txt(doc['staff'])
+
         it += 1
+        #log().info(f'iteration {it} done')
+        print(f'iteration {it} done')
         if it >= iteration:
-            l.info('iteration limit')
+            #log().info('iteration limit')
+            print('iteration limit')
             break
 
-    l.info('done')
+    #log().info('done')
+    print('done')
 
 if __name__ == '__main__':
-    init_logger(__name__)
+    #init_logger(__name__)
 
     try:
         if not load_dotenv():
@@ -80,4 +88,5 @@ if __name__ == '__main__':
         mongo.connect()
         asyncio.run(multi_modal_vec(iteration, batch_size, img_root))
     except Exception as e:
-        log().error(e)
+        #log().error(e)
+        print(e)

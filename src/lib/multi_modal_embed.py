@@ -2,7 +2,8 @@ import os
 import torch
 import torch.nn.functional as F
 from PIL import Image
-from colpali_engine.models import ColQwen2_5, ColQwen2_5_Processor
+from colpali_engine.models import ColQwen2 as Model, ColQwen2Processor as Processor
+#from colpali_engine.models import ColPali as Model, ColPaliProcessor as Processor
 
 __model = None
 __processor = None
@@ -15,14 +16,17 @@ def init_multi_modal_model():
     if model_name is None:
         raise ValueError('env for mult modal model is not set')
 
-    __model = ColQwen2_5.from_pretrained(
+    __model = Model.from_pretrained(
         model_name,
         device_map='cuda:0',
-        torch_dtype=torch.bfloat16,
-        attn_implementation='sdpa'
+        torch_dtype=torch.bfloat16
     ).eval()
 
-    __processor = ColQwen2_5_Processor.from_pretrained(model_name, use_fast=True)
+    __processor = Processor.from_pretrained(
+        model_name,
+        device_map='cuda:0', 
+        use_fast=True
+    )
 
 def txt_vector(sentence: str) -> torch.Tensor:
     if __model is None:
@@ -32,8 +36,8 @@ def txt_vector(sentence: str) -> torch.Tensor:
 
     with torch.no_grad():
         input = __processor.process_queries([sentence]).to(__model.device)
-        txt_embed = __model(**input)
-        return F.normalize(txt_embed[0], p=2.0, dim=-1)
+        embed = __model(**input)
+        return post_process(embed[0])
 
 def img_vector(path: str) -> torch.Tensor:
     if __model is None:
@@ -44,6 +48,10 @@ def img_vector(path: str) -> torch.Tensor:
     with torch.no_grad():
         img = Image.open(path)
         input = __processor.process_images([img]).to(__model.device)
-        img_embed = __model(**input)
-        return F.normalize(img_embed[0], p=2.0, dim=-1)
+        embed = __model(**input)
+        return post_process(embed[0])
         
+        
+def post_process(v: torch.Tensor) -> torch.Tensor:
+    normalized = F.normalize(v, p=2.0, dim=-1)
+    return torch.mean(normalized, dim=0)
