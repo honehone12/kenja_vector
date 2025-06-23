@@ -1,5 +1,6 @@
 import os
 import torch
+import torch.nn.functional as F
 from PIL import Image
 from colpali_engine.models import ColQwen2_5, ColQwen2_5_Processor
 
@@ -16,36 +17,33 @@ def init_multi_modal_model():
 
     __model = ColQwen2_5.from_pretrained(
         model_name,
-        device_map='cuda:0'
+        device_map='cuda:0',
+        torch_dtype=torch.bfloat16,
+        attn_implementation='sdpa'
     ).eval()
 
-    __processor = ColQwen2_5_Processor.from_pretrained(
-        model_name,
-        device_map='cuda:0'
-    )
+    __processor = ColQwen2_5_Processor.from_pretrained(model_name, use_fast=True)
 
-def txt_vector(sentence: str):
+def txt_vector(sentence: str) -> torch.Tensor:
     if __model is None:
         raise ValueError('model is not initialized')
     if __processor is None:
         raise ValueError('processor is not initialized')
 
-    input = __processor.process_queries([sentence]).to(__model.device)
-    
     with torch.no_grad():
+        input = __processor.process_queries([sentence]).to(__model.device)
         txt_embed = __model(**input)
-        return txt_embed
+        return F.normalize(txt_embed[0], p=2.0, dim=-1)
 
-def img_vector(path: str):
+def img_vector(path: str) -> torch.Tensor:
     if __model is None:
         raise ValueError('model is not initialized')
     if __processor is None:
         raise ValueError('processor is not initialized')
 
-    img = Image.open(path)
-    input = __processor.process_images([img]).to(__model.device)
-    
     with torch.no_grad():
+        img = Image.open(path)
+        input = __processor.process_images([img]).to(__model.device)
         img_embed = __model(**input)
-        return img_embed
+        return F.normalize(img_embed[0], p=2.0, dim=-1)
         

@@ -19,14 +19,14 @@ async def img(img_root: str, url: str):
         return
 
     v = img_vector(path)
-    log().info(v)
+    log().info(v.shape)
 
 async def txt(text: str):
     if len(text) == 0:
         raise ValueError('null text')
 
     v = txt_vector(text)
-    log().info(v)
+    log().info(v.shape)
 
 
 async def multi_modal_vec(iteration: int, batch_size: int, img_root: str):
@@ -40,13 +40,13 @@ async def multi_modal_vec(iteration: int, batch_size: int, img_root: str):
     batch = []
     async for doc in stream:
         if doc.get(IMG_VEC_FIELD) is None:
-            img(img_root, doc['img'])
+            await img(img_root, doc['img'])
 
-        if doc.get(TXT_VEC_FIELD) is None:
-            txt(doc['description'])
+        # if doc.get(TXT_VEC_FIELD) is None:
+        #     txt(doc['description'])
 
-        if doc.get(STF_VEC_FIELD) is None:
-            txt(doc['staff'])
+        # if doc.get(STF_VEC_FIELD) is None:
+        #     txt(doc['staff'])
     
         it += 1
         if it >= iteration:
