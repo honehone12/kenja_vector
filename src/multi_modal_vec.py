@@ -7,7 +7,6 @@ from pymongo.asynchronous.cursor import AsyncCursor
 from lib import mongo
 from lib.documents import IMG_VEC_FIELD, TXT_VEC_FIELD, STF_VEC_FIELD, Doc
 from lib.multi_modal_embed import init_multi_modal_model, img_vector, txt_vector
-#from lib.logger import init_logger, log
 
 async def img(img_root: str, url: str):
     if len(url) == 0:
@@ -15,22 +14,18 @@ async def img(img_root: str, url: str):
 
     path = img_root + urlparse(url).path.removesuffix('/')
     if not os.path.exists(path):
-        #log().warning(f'image not found {path}')
         print(f'image not found {path}')
         return
 
     v = img_vector(path)
-    #log().info(v.shape)
     print(v.shape)
 
 async def txt(text: str):
     if len(text) == 0:
-        #log().warning('null text')
         print('null text')
         return
 
     v = txt_vector(text)
-    #log().info(v.shape)
     print(v.shape)
 
 
@@ -53,19 +48,14 @@ async def multi_modal_vec(iteration: int, batch_size: int, img_root: str):
             await txt(doc['staff'])
 
         it += 1
-        #log().info(f'iteration {it} done')
         print(f'iteration {it} done')
         if it >= iteration:
-            #log().info('iteration limit')
             print('iteration limit')
             break
 
-    #log().info('done')
     print('done')
 
 if __name__ == '__main__':
-    #init_logger(__name__)
-
     try:
         if not load_dotenv():
             raise RuntimeError('failed to initialize dotenv')
@@ -88,5 +78,4 @@ if __name__ == '__main__':
         mongo.connect()
         asyncio.run(multi_modal_vec(iteration, batch_size, img_root))
     except Exception as e:
-        #log().error(e)
         print(e)
