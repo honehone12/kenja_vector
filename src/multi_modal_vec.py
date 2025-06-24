@@ -10,7 +10,7 @@ from lib import mongo
 from lib.documents import IMG_VEC_FIELD, TXT_VEC_FIELD, STF_VEC_FIELD, Doc
 from lib.multi_modal_embed import init_multi_modal_model, img_vector, txt_vector
 
-async def img(img_root: str, url: str, id: ObjectId):
+def img(img_root: str, url: str, id: ObjectId):
     if len(url) == 0:
         raise ValueError('empty url')
 
@@ -33,7 +33,7 @@ async def img(img_root: str, url: str, id: ObjectId):
     )
     return u, True
 
-async def txt(field: str, text: str, id: ObjectId):
+def txt(field: str, text: str, id: ObjectId):
     if len(text) == 0:
         raise ValueError('empty text')
 
@@ -57,17 +57,17 @@ async def multi_modal_vec(iteration: int, batch_size: int, img_root: str):
         id = doc['_id']
 
         if doc.get(IMG_VEC_FIELD) is None:
-            op, ok = await img(img_root, doc['img'], id)
+            op, ok = img(img_root, doc['img'], id)
             batch.append(op)
             if not ok:
                 continue
             
         if doc.get(TXT_VEC_FIELD) is None:
-            op = await txt(TXT_VEC_FIELD, doc['description'], id)
+            op = txt(TXT_VEC_FIELD, doc['description'], id)
             batch.append(op)
 
         if doc.get(STF_VEC_FIELD) is None:
-            op = await txt(STF_VEC_FIELD, doc['staff'], id)
+            op = txt(STF_VEC_FIELD, doc['staff'], id)
             batch.append(op)
 
         if len(batch) >= batch_size:
