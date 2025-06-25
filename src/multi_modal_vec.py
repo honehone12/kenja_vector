@@ -8,9 +8,10 @@ from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.cursor import AsyncCursor
 from lib import mongo
 from lib.documents import IMG_VEC_FIELD, TXT_VEC_FIELD, STF_VEC_FIELD, Doc
-from lib.colpali import init_multi_modal_model, img_vector, txt_vector
+from lib.sentence_tsfm import init_sentence_tsfm_model, sentence_vector
+from lib.image_tsfm import init_image_tsfm_model, image_vector
 
-def img(img_root: str, url: str, id: ObjectId):
+def process_image(img_root: str, url: str, id: ObjectId):
     if len(url) == 0:
         raise ValueError('empty url')
 
@@ -22,7 +23,7 @@ def img(img_root: str, url: str, id: ObjectId):
         )
         return d, False
 
-    v = img_vector(path)
+    v = image_vector(path)
     b = mongo.compress_bin(v)
     u = UpdateOne(
         filter={'_id': id},
@@ -33,11 +34,11 @@ def img(img_root: str, url: str, id: ObjectId):
     )
     return u, True
 
-def txt(field: str, text: str, id: ObjectId):
+def process_text(field: str, text: str, id: ObjectId):
     if len(text) == 0:
         raise ValueError('empty text')
 
-    v = txt_vector(text)
+    v = sentence_vector(text)
     b = mongo.compress_bin(v)
     u = UpdateOne(
         filter={'_id': id},
@@ -57,17 +58,17 @@ async def multi_modal_vec(iteration: int, batch_size: int, img_root: str):
         id = doc['_id']
 
         if doc.get(IMG_VEC_FIELD) is None:
-            op, ok = img(img_root, doc['img'], id)
+            op, ok = process_image(img_root, doc['img'], id)
             batch.append(op)
             if not ok:
                 continue
             
         if doc.get(TXT_VEC_FIELD) is None:
-            op = txt(TXT_VEC_FIELD, doc['description'], id)
+            op = process_text(TXT_VEC_FIELD, doc['description'], id)
             batch.append(op)
 
         if doc.get(STF_VEC_FIELD) is None:
-            op = txt(STF_VEC_FIELD, doc['staff'], id)
+            op = process_text(STF_VEC_FIELD, doc['staff'], id)
             batch.append(op)
 
         if len(batch) >= batch_size:
@@ -105,7 +106,8 @@ if __name__ == '__main__':
         if img_root is None:
             raise ValueError('env for image root is not set')
 
-        init_multi_modal_model()
+        init_sentence_tsfm_model()
+        init_image_tsfm_model()
         mongo.connect()
         asyncio.run(multi_modal_vec(iteration, batch_size, img_root))
     except Exception as e:

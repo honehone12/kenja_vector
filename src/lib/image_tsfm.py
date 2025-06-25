@@ -8,7 +8,7 @@ __processor = None
 __model = None
 __device = None
 
-def init_img_model():
+def init_image_tsfm_model():
     global __processor
     global __model
     global __device
@@ -23,7 +23,7 @@ def init_img_model():
     __model.to(__device)
     __model.eval()
 
-def img_vector(img_path: str):
+def image_vector(img_path: str):
     if __processor is None:
         raise ValueError('processor is not initialized')
     if __model is None:
@@ -36,6 +36,4 @@ def img_vector(img_path: str):
         proc = __processor(img, return_tensors='pt', device='cuda')
         raw = __model(**proc).last_hidden_state
         crs_tkn = raw[:, 0]
-        normalized = F.normalize(crs_tkn, p=2.0, dim=1)
-        sync = normalized.cpu() 
-        return sync.squeeze(0).numpy()
+        return F.normalize(crs_tkn, p=2.0, dim=1).squeeze(0)

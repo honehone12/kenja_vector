@@ -9,7 +9,7 @@ from lib.logger import log, init_logger
 from lib.documents import RATING_ALL_AGES, RATING_HENTAI, IMG_VEC_FIELD, Doc
 import lib.mongo as mongo
 from lib.mongo import compress_bin
-from lib.img_transformer import init_img_model, img_vector
+from lib.image_tsfm import init_image_tsfm_model, image_vector
 
 async def img_vec(iteration: int, batch_size: int, img_root: str):
     db = mongo.db('DATABASE')
@@ -53,7 +53,7 @@ async def img_vec(iteration: int, batch_size: int, img_root: str):
             log().info('quit on max iteration')
             break
         log().info(f'iteration {it} ({total})')
-        v = img_vector(path)
+        v = image_vector(path)
         compressed = compress_bin(v)
         
         u = UpdateOne(
@@ -96,7 +96,7 @@ if __name__ == '__main__':
         if img_root is None:
             raise ValueError('env for image root is not set')
 
-        init_img_model()
+        init_image_tsfm_model()
         mongo.connect()
         asyncio.run(img_vec(iteration, batch_size, img_root))
     except Exception as e:

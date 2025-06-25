@@ -8,7 +8,7 @@ from lib.logger import log, init_logger
 from lib.documents import TXT_VEC_FIELD, Doc
 import lib.mongo as mongo
 from lib.mongo import compress_bin
-from lib.sentence_transformer import init_txt_model, txt_vector
+from lib.sentence_tsfm import init_sentence_tsfm_model, sentence_vector
 
 async def txt_vec(iteration: int, batch_size: int):
     db = mongo.db('DATABASE')
@@ -34,7 +34,7 @@ async def txt_vec(iteration: int, batch_size: int):
         if len(desc) == 0:
             raise ValueError(f'null text: {doc}')
         
-        v = txt_vector(desc)
+        v = sentence_vector(desc)
         compressed = compress_bin(v)
 
         u = UpdateOne(
@@ -71,7 +71,7 @@ if __name__ == '__main__':
             batch_size = int(batchstr)
         
         mongo.connect()
-        init_txt_model()
+        init_sentence_tsfm_model()
         asyncio.run(txt_vec(iteration, batch_size))
     except Exception as e:
         log().error(e)
