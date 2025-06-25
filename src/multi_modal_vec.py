@@ -8,7 +8,7 @@ from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.cursor import AsyncCursor
 from lib import mongo
 from lib.documents import IMG_VEC_FIELD, TXT_VEC_FIELD, STF_VEC_FIELD, Doc
-from lib.multi_modal_embed import init_multi_modal_model, img_vector, txt_vector
+from lib.colpali import init_multi_modal_model, img_vector, txt_vector
 
 def img(img_root: str, url: str, id: ObjectId):
     if len(url) == 0:

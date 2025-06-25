@@ -9,7 +9,7 @@ from lib.logger import log, init_logger
 from lib.documents import RATING_ALL_AGES, RATING_HENTAI, IMG_VEC_FIELD, Doc
 import lib.mongo as mongo
 from lib.mongo import compress_bin
-from lib.img_embed import init_img_model, img_vector
+from lib.img_transformer import init_img_model, img_vector
 
 async def img_vec(iteration: int, batch_size: int, img_root: str):
     db = mongo.db('DATABASE')

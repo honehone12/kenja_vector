@@ -8,7 +8,7 @@ from lib.logger import log, init_logger
 from lib.documents import TXT_VEC_FIELD, Doc
 import lib.mongo as mongo
 from lib.mongo import compress_bin
-from lib.txt_embed import init_txt_model, txt_vector
+from lib.sentence_transformer import init_txt_model, txt_vector
 
 async def txt_vec(iteration: int, batch_size: int):
     db = mongo.db('DATABASE')

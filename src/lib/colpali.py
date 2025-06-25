@@ -1,6 +1,5 @@
 import os
 import torch
-import torch.nn.functional as F
 from PIL import Image
 from colpali_engine.models import ColQwen2 as Model, ColQwen2Processor as Processor
 
@@ -36,7 +35,7 @@ def txt_vector(sentence: str) -> torch.Tensor:
     with torch.no_grad():
         input = __processor.process_queries([sentence]).to(__model.device)
         embed = __model(**input)
-        return post_process(embed[0])
+        return torch.mean(embed[0], dim=0)
 
 def img_vector(path: str) -> torch.Tensor:
     if __model is None:
@@ -48,9 +47,4 @@ def img_vector(path: str) -> torch.Tensor:
         img = Image.open(path)
         input = __processor.process_images([img]).to(__model.device)
         embed = __model(**input)
-        return post_process(embed[0])
-        
-        
-def post_process(v: torch.Tensor) -> torch.Tensor:
-    normalized = F.normalize(v, p=2.0, dim=-1)
-    return torch.mean(normalized, dim=0)
+        return torch.mean(embed[0], dim=0)
