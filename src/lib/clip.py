@@ -10,6 +10,9 @@ def init_clip_model():
     global __processor
 
     model_name = os.getenv('CLIP_MODEl')
+    if model_name is None:
+        raise ValueError('env for clip model is not set')
+
     __model = CLIPModel.from_pretrained(
         model_name,
         device_map='cuda'
@@ -28,7 +31,7 @@ def sentence_vector(sentence: str):
         raise ValueError('processor is not initialized')
 
     input = __processor(text=[sentence])
-    v = __model.encode_text(input)
+    v = __model(**input)
     return v
 
 def image_vector(path: str):
@@ -39,5 +42,5 @@ def image_vector(path: str):
 
     img = Image.open(path)
     input = __processor(images=[img])
-    v = __model.encode_text(input)
+    v = __model(**input)
     return v
