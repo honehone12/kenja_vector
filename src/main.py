@@ -8,8 +8,9 @@ from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.cursor import AsyncCursor
 from lib import mongo
 from lib.documents import IMG_VEC_FIELD, TXT_VEC_FIELD, STF_VEC_FIELD, Doc
-from lib.sentence_tsfm import init_sentence_tsfm_model, sentence_vector
-from lib.image_tsfm import init_image_tsfm_model, image_vector
+# from lib.sentence_tsfm import init_sentence_tsfm_model, sentence_vector
+# from lib.image_tsfm import init_image_tsfm_model, image_vector
+from lib.colpali import init_colpali_model, image_vector, sentence_vector
 
 def process_image(img_root: str, url: str, id: ObjectId):
     if len(url) == 0:
@@ -106,8 +107,9 @@ if __name__ == '__main__':
         if img_root is None:
             raise ValueError('env for image root is not set')
 
-        init_sentence_tsfm_model()
-        init_image_tsfm_model()
+        # init_sentence_tsfm_model()
+        # init_image_tsfm_model()
+        init_colpali_model()
         mongo.connect()
         asyncio.run(multi_modal_vec(iteration, batch_size, img_root))
     except Exception as e:

@@ -11,9 +11,9 @@ def init_colpali_model():
     global __model
     global __processor
 
-    model_name = os.getenv('COLAPLI_MODEL')
+    model_name = os.getenv('COLPALI_MODEL')
     if model_name is None:
-        raise ValueError('env for mult modal model is not set')
+        raise ValueError('env for colpali model is not set')
 
     __model = Model.from_pretrained(
         model_name,
@@ -27,7 +27,7 @@ def init_colpali_model():
         use_fast=True
     )
 
-def txt_vector(sentence: str):
+def sentence_vector(sentence: str):
     if __model is None:
         raise ValueError('model is not initialized')
     if __processor is None:
@@ -38,7 +38,7 @@ def txt_vector(sentence: str):
         embed = __model(**input)
         return post_process(embed[0])
 
-def img_vector(path: str):
+def image_vector(path: str):
     if __model is None:
         raise ValueError('model is not initialized')
     if __processor is None:
