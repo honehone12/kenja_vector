@@ -1,16 +1,14 @@
 import asyncio
 import os
 from urllib.parse import urlparse
-from bson import ObjectId
 from dotenv import load_dotenv
-from pymongo import DeleteOne, UpdateOne
 from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.cursor import AsyncCursor
 from lib import mongo
 from lib.documents import IMG_VEC_FIELD, TXT_VEC_FIELD, STF_VEC_FIELD, Doc
-# from lib.sentence_tsfm import init_sentence_tsfm_model, sentence_vector
-# from lib.image_tsfm import init_image_tsfm_model, image_vector
-from lib.colpali import init_colpali_model, image_vector, sentence_vector
+from lib.sentence_tsfm import init_sentence_tsfm_model, sentence_vector
+from lib.dino import init_dino_model, image_vector
+from lib.luke import init_luke_model, name_vector
 
 def process_image(img_root: str, url: str):
     if len(url) == 0:
@@ -22,14 +20,21 @@ def process_image(img_root: str, url: str):
         return
 
     v = image_vector(path)
-    print(v.shape)
+    print('image', v.shape)
 
 def process_text(text: str):
     if len(text) == 0:
         raise ValueError('empty text')
 
     v = sentence_vector(text)
-    print(v.shape)
+    print('text', v.shape)
+
+def process_name(text: str):
+    if len(text) == 0:
+        raise ValueError('empty text')
+
+    v = name_vector(text)
+    print('name', v.shape)    
     
 
 async def process_vecs(iteration: int, img_root: str):
@@ -39,8 +44,6 @@ async def process_vecs(iteration: int, img_root: str):
 
     it = 0
     async for doc in stream:
-        id = doc['_id']
-
         if doc.get(IMG_VEC_FIELD) is None:
             process_image(img_root, doc['img'])
             
@@ -48,7 +51,7 @@ async def process_vecs(iteration: int, img_root: str):
             process_text(doc['description'])
 
         if doc.get(STF_VEC_FIELD) is None:
-            process_text(doc['staff'])
+            process_name(doc['staff'])
 
         it += 1
         print(f'iteration {it} done')
@@ -76,9 +79,9 @@ if __name__ == '__main__':
         if img_root is None:
             raise ValueError('env for image root is not set')
 
-        # init_sentence_tsfm_model()
-        # init_image_tsfm_model()
-        init_colpali_model()
+        init_sentence_tsfm_model()
+        init_dino_model()
+        init_luke_model()
         mongo.connect()
         asyncio.run(process_vecs(iteration, img_root))
     except Exception as e:

@@ -18,7 +18,9 @@ def init_image_tsfm_model():
         raise ValueError('env for image embed model is not set')
 
     __device = torch.device('cuda')
+
     __processor = AutoImageProcessor.from_pretrained(model_name, use_fast=True)
+    
     __model = AutoModel.from_pretrained(model_name, trust_remote_code=True)
     __model.to(__device)
     __model.eval()
@@ -33,7 +35,7 @@ def image_vector(img_path: str):
 
     with torch.no_grad():
         img = Image.open(img_path)
-        proc = __processor(img, return_tensors='pt', device='cuda')
-        raw = __model(**proc).last_hidden_state
+        input = __processor(img, return_tensors='pt', device='cuda')
+        raw = __model(**input).last_hidden_state
         crs_tkn = raw[:, 0]
         return F.normalize(crs_tkn, p=2.0, dim=1).squeeze(0)
