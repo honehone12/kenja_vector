@@ -35,11 +35,12 @@ def image_vector(path: str):
         raise ValueError('device is not initialized')
 
     img = Image.open(path)
-    input = __processor(
-        images=img, 
-        return_tensors="pt"
-    )
-    input = {k: v.to(__device) for k, v in input.items()}
-    raw = __model(**input).last_hidden_state
-    crs_tkn = raw[:, 0]
-    return F.normalize(crs_tkn, p=2.0, dim=-1).squeeze(0)
+    with torch.no_grad():
+        input = __processor(
+            images=img, 
+            return_tensors="pt"
+        )
+        input = {k: v.to(__device) for k, v in input.items()}
+        raw = __model(**input).last_hidden_state
+        crs_tkn = raw[:, 0]
+        return F.normalize(crs_tkn, p=2.0, dim=-1).squeeze(0)

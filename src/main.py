@@ -10,7 +10,7 @@ from lib import mongo
 from lib.documents import IMG_VEC_FIELD, TXT_VEC_FIELD, STF_VEC_FIELD, Doc
 from lib.sentence_tsfm import init_sentence_tsfm_model, sentence_vector
 from lib.dino import init_dino_model, image_vector
-from lib.luke import init_luke_model, name_vector
+from lib.luke import init_luke_model, sentence_vector
 
 def process_image(img_root: str, url: str, id: ObjectId):
     if len(url) == 0:
@@ -51,7 +51,7 @@ def process_name(field: str, text: str, id: ObjectId):
     if len(text) == 0:
         raise ValueError('empty text')
 
-    v = name_vector(text)
+    v = sentence_vector(text)
     b = mongo.compress_bin(v)
     u = UpdateOne(
         filter={'_id': id},
