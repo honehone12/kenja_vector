@@ -25,7 +25,7 @@ def init_luke_model():
 
     __tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-def sentence_vector(text: str):
+def name_vector(text: str):
     if __model is None:
         raise ValueError('model is not initialized')
     if __tokenizer is None:

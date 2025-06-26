@@ -7,7 +7,7 @@ from pymongo.asynchronous.cursor import AsyncCursor
 from lib import mongo
 from lib.documents import IMG_VEC_FIELD, TXT_VEC_FIELD, STF_VEC_FIELD, Doc
 from lib.clip import init_clip_model, image_vector
-from lib.sentence_tsfm import init_sentence_tsfm_model, sentence_vector
+from lib.sentence_tsfm import init_sentence_tsfm_model, sentence_vector_v2
 
 def process_image(img_root: str, url: str):
     if len(url) == 0:
@@ -25,14 +25,14 @@ def process_text(text: str):
     if len(text) == 0:
         raise ValueError('empty text')
 
-    v = sentence_vector(text)
+    v = sentence_vector_v2(text)
     print('text', v.shape)
 
 def process_name(text: str):
     if len(text) == 0:
         raise ValueError('empty text')
 
-    v = sentence_vector(text)
+    v = sentence_vector_v2(text)
     print('name', v.shape)    
     
 
