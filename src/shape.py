@@ -6,7 +6,7 @@ from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.cursor import AsyncCursor
 from lib import mongo
 from lib.documents import IMG_VEC_FIELD, TXT_VEC_FIELD, STF_VEC_FIELD, Doc
-from lib.clip import init_clip_model, image_vector
+from lib.siglip import init_siglip_model, image_vector
 from lib.sentence_tsfm import init_sentence_tsfm_model, sentence_vector_v2
 
 def process_image(img_root: str, url: str):
@@ -78,7 +78,7 @@ if __name__ == '__main__':
         if img_root is None:
             raise ValueError('env for image root is not set')
 
-        init_clip_model()
+        init_siglip_model()
         init_sentence_tsfm_model()
         mongo.connect()
         asyncio.run(process_vecs(iteration, img_root))
