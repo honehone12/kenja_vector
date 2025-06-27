@@ -19,7 +19,7 @@ def init_siglip_model():
     
     __device = torch.device('cuda')
     __model = AutoModel.from_pretrained(model_name).eval().to(__device)
-    __processor = AutoProcessor.from_pretrained(model_name)
+    __processor = AutoProcessor.from_pretrained(model_name, use_fast=True)
 
 def image_vector(path: str):
     if __model is None:
@@ -29,8 +29,8 @@ def image_vector(path: str):
     if __device is None:
         raise ValueError('device is not initialized')
 
-    img = Image.open(path)
+    img = Image.open(path).convert('RGB')
     with torch.no_grad():
-        input = __processor(images=img, return_tensors='pt').to(__device)
+        input = __processor(images=[img], return_tensors='pt').to(__device)
         raw = __model.get_image_features(**input)
-        return F.normalize(raw, p=2.0, dim=-1)
+        return F.normalize(raw, p=2.0, dim=-1).squeeze(0)
